@@ -1,0 +1,9 @@
+{
+    "sitemap": "https://apkpure.com/sitemap.xml",
+    "path": "data",
+    "sub": "benign",
+    "cat": 10,
+    "num": 25,
+    "malware": "/datasets/dsc180a-wi20-public/Malware/amd_data_smali"
+    
+}
