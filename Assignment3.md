@@ -15,20 +15,20 @@
       - [Pipeline](#pipeline)
       - [Applicability](#applicability)
 - [Assignment #2: Cleaning and EDA](#assignment-2-cleaning-and-eda)
-      - [Graph Definitions](#graph-definitions)
-      - [EDA on Apps](#eda-on-apps)
-      - [Baseline Classification Model](#baseline-classification-model)
-        - [Observations:](#observations)
+    - [Graph Definitions](#graph-definitions)
+    - [EDA on Apps](#eda-on-apps)
+    - [Baseline Classification Model](#baseline-classification-model)
+        - [Observations](#observations)
 - [Assignment #3: Hindroid Classification](#assignment-3-hindroid-classification)
-      - [The Hindroid](#the-hindroid)
+    - [The Hindroid](#the-hindroid)
         - [Graph Description:](#graph-description)
         - [Metapath Description:](#metapath-description)
         - [Matrices Implementation Details:](#matrices-implementation-details)
         - [Precomputed Kernel SVM](#precomputed-kernel-svm)
         - [Replication Result](#replication-result)
-      - [Conclusion](#conclusion)
-      - [Future Work](#future-work)
-      - [Reference](#reference)
+    - [Conclusion](#conclusion)
+    - [Future Work](#future-work)
+    - [Reference](#reference)
 
 # Assignment #1: The Data
 ### Literature Review
@@ -129,7 +129,7 @@ In consideration of storage saving, we will only keep the necessary `AndroidMani
 The above pipeline for scraping benign Android applications may be used for other online Android platforms, both official and third party. It is applicable as long as a `sitemap.xml` exists for the platform. However, if the platform is not public and opensource as [APKPure](http://apkpure.com), the scraping may lead to legal issues and privacy concerns. 
 
 # Assignment #2: Cleaning and EDA
-#### Graph Definitions
+### Graph Definitions
 There are four types of graph being used to model the android application as described in the [Hindroid](https://www.cse.ust.hk/~yqsong/papers/2017-KDD-HINDROID.pdf) paper. 
 
 1. Graph A:
@@ -152,7 +152,7 @@ There are four types of graph being used to model the android application as des
    - Node: API calls
    - Edges: If i<sub>ij</sub> = 1, node API<sub>i</sub> and node API<sub>j</sub> are connected by an edge. Otherwise, no edge.
 
-#### EDA on Apps
+### EDA on Apps
 
 We will perform EDA on a small dataset first then on a large dataset.
 1. We sampeld 50 benign Apps on [APKPure](http://apkpure.com) equally distributed across 10 categories, decompiled, and cleaned to `AndroidManifest.xml` and `.smali`.
@@ -200,7 +200,7 @@ We will be performing feature extraction and EDA over the ~500 apps (~50 benign 
    Malware:
    ![alt text](large_malware_hist.png)
 
-#### Baseline Classification Model
+### Baseline Classification Model
 We use Logistic Regression, Random Forest, and Gradient Boost Classifier to train our models based on the features extracted above and classify whether an App is benign or malware.
 
 1. Small dataset baseline result:
@@ -211,12 +211,12 @@ We use Logistic Regression, Random Forest, and Gradient Boost Classifier to trai
    ![alt text](large_baseline.png)
    From the result dataframe, we can observe that the performace of logistic regression is not as good as the other two. Random forest and gradient boost both have high accuracy and low false negative rate.
 
-##### Observations:
+##### Observations
 Logistic regression is not an ideal model among the three classifiers we trained. Random forest is overall robust as it has similar accuracy ~0.92 and false negative rate ~0.58 on both small and large dataset. However, gradient boost's performance gets worse as dataset gets larger.
 The metric important is the number of false negative divided by number of total apps, noted as fnr, as we care more about the missing detections of malware apps.
 
 # Assignment #3: Hindroid Classification
-#### The Hindroid
+### The Hindroid
 The Hindroid approach introduced in [Hindroid](https://www.cse.ust.hk/~yqsong/papers/2017-KDD-HINDROID.pdf) uses heterogeneous information network to capture the relationships between apps and apis or between apis and apis. The corresponding relationships are extracted as features and saved as adjacency matrices. From these matrices, various matapaths are computed and fed into the Support Vector Machine classifier as kernels. 
 As we can observe from EDA and baseline result, api calls almost make up Android app and are keys to successful classification. Since our problem is to investigate malicious attack hiding in Android apps, which is different from many regular classifying problems, the Hindroid approach is an intuitive and useful way for classifying malware from benign apps as it not investigate only apps/apis alone but also the assoiciations between api calls in different places of the entire app code. It utilizes characters of API calls, code blocks, and packages to calculate the similarities between apps.
 <br />
@@ -276,13 +276,13 @@ After the construction of matrices, we then compute several kernel metapaths for
 
 From the result dataframe, we can observe that the performace of SVM using `AA^T` metapath kernel is the best, following is `APA^T`. Metapaths associating with matrix B are not as good in accuracy but always have low false netative rate as the model tend to predict 1 / malware.
 
-#### Conclusion
+### Conclusion
 From our EDA and baseline model, we observe that malware, at least those in our private database, tend to have fewer API calls on average, which explains the out performances of random forest and gradient boost classifiers using basic features. However, as we stressed in [EDA on Apps](#eda-on-apps), one error metric we consider most important is the false netative rate as we don't want to miss the detection of malware, and our baseline model having the rates ~0.05 is not as ideal. While the baseline model using basic features has a high accuarcy score, it still has a risk of leaving out a few malicious apps. Given that said, our Hindroid model has much lower false negative rates ~0.01, which is more ideal.
 
 From our metapath kernels, we observe that `AA^T` outperforms among all kernels and have the highest accuracy score. However, metapaths associated with matrix B, including `ABA^T` and `APBP^TA^T`, have lower accuracies. 
 
-#### Future Work
+### Future Work
 In order to improve the model, we can (i)improve the model computation efficiency to train more data, (ii)gather more recent detected malware into our database, (iii)assign weights to metapaths according to their overall performances and fit into a multikernel classifier, and (iv)try different graph embedding methods.
 
-#### Reference
+### Reference
 All replication in this study is in reference to: [Hindroid](https://www.cse.ust.hk/~yqsong/papers/2017-KDD-HINDROID.pdf)
